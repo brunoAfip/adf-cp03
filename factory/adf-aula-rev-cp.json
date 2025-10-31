@@ -1,0 +1,9 @@
+{
+	"name": "adf-aula-rev-cp",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "b24e3fdf-5485-4f9c-8b7e-07daae4c5b10",
+		"tenantId": "11dbbfe2-89b8-4549-be10-cec364e59551"
+	}
+}

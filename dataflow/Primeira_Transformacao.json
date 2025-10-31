@@ -1,0 +1,103 @@
+{
+	"name": "Primeira_Transformacao",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "Loja"
+				},
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "EndLoja"
+				},
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "Logradouro"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          NR_LOJA as short,",
+				"          NM_LOJA as string,",
+				"          DT_INAUGURACAO as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Loja",
+				"source(output(",
+				"          CD_LOJA_END as short,",
+				"          NR_LOJA as short,",
+				"          CD_LOGRADOURO as short,",
+				"          NR_END as short,",
+				"          DS_COMPLEMENTO_END as string,",
+				"          DT_INICIO as string,",
+				"          DT_TERMINO as string,",
+				"          ST_END as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> EndLoja",
+				"source(output(",
+				"          CD_LOJA_END as short,",
+				"          NR_LOJA as short,",
+				"          CD_LOGRADOURO as short,",
+				"          NR_END as short,",
+				"          DS_COMPLEMENTO_END as string,",
+				"          DT_INICIO as string,",
+				"          DT_TERMINO as string,",
+				"          ST_END as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Logradouro",
+				"Loja, EndLoja join(Loja@NR_LOJA == EndLoja@NR_LOJA,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1, Logradouro join(Loja@NR_LOJA == Logradouro@NR_LOJA,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 derive(ORIGEM = 'Loja') ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     filePattern:'Arquivo_Joins01',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

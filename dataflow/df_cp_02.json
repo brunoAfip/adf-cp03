@@ -1,0 +1,87 @@
+{
+	"name": "df_cp_02",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "dbcli"
+				},
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "dbclicf"
+				},
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "dbendcli"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "join2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          NR_CLIENTE as short,",
+				"          NM_CLIENTE as string,",
+				"          QT_ESTRELAS as short",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> dbcli",
+				"source(output(",
+				"          NR_CLIENTE as short,",
+				"          FL_SEXO as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> dbclicf",
+				"source(output(",
+				"          NR_CLIENTE as short,",
+				"          CD_LOGRADOURO_CLI as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> dbendcli",
+				"dbcli, dbclicf join(dbcli@NR_CLIENTE == dbclicf@NR_CLIENTE,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1, dbendcli join(dbcli@NR_CLIENTE == dbendcli@NR_CLIENTE,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     filePattern:'tabfim',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

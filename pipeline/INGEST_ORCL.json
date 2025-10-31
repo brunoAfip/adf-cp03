@@ -1,0 +1,67 @@
+{
+	"name": "INGEST_ORCL",
+	"properties": {
+		"activities": [
+			{
+				"name": "cp_dim_oracle",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "OracleSink",
+						"writeBatchSize": 10000,
+						"preCopyScript": "CREATE TABLE PF2250.T_CLIENTE (\n    NR_CLIENTE           NUMBER,\n    NM_CLIENTE           VARCHAR2(100),\n    QT_ESTRELAS          NUMBER,\n    FL_SEXO              CHAR(1),\n    CD_LOGRADOURO_CLI    VARCHAR2(50)\n);"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RAW",
+						"type": "DatasetReference",
+						"parameters": {
+							"nome_arquivo": "tabfim-00001"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ORCL_INGEST",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "pf2250",
+							"tabela": "T_CLIENTE"
+						}
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}

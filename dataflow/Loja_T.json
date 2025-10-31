@@ -1,0 +1,73 @@
+{
+	"name": "Loja_T",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "Loja"
+				},
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "EndLoja"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "RAW",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          NR_LOJA as short,",
+				"          NM_LOJA as string,",
+				"          DT_INAUGURACAO as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     limit: 100,",
+				"     ignoreNoFilesFound: false) ~> Loja",
+				"source(output(",
+				"          CD_LOJA_END as short,",
+				"          NR_LOJA as short,",
+				"          CD_LOGRADOURO as short,",
+				"          NR_END as short,",
+				"          DS_COMPLEMENTO_END as string,",
+				"          DT_INICIO as string,",
+				"          DT_TERMINO as string,",
+				"          ST_END as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> EndLoja",
+				"Loja, EndLoja join(Loja@NR_LOJA == EndLoja@NR_LOJA,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     filePattern:'Teste',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1) ~> sink1"
+			]
+		}
+	}
+}
